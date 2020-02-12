@@ -41,6 +41,10 @@ namespace Simple.Redis
         public RedisCommand AddArgument(float argument) =>
             AddArgument(argument.ToString(CultureInfo.InvariantCulture));
 
+        public RedisCommand AddArgument<T>(T argument)
+            where T : class =>
+            AddArgument(Serializer.SerializeToBytes(argument));
+
         public void Execute(IRedisConnection connection)
         {
             if (connection.IsPassThrough)
