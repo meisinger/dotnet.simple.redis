@@ -75,7 +75,45 @@ namespace Simple.Redis
                 return connection;
             }
 
-            // add commands to connect
+            if (!string.IsNullOrWhiteSpace(password))
+            {
+                var auth = RedisCommand.Create(RedisCommands.AUTH)
+                    .AddArgument(password)
+                    .Execute(connection);
+
+                if (auth.IsEmpty)
+                {
+                    connection.Dispose();
+                    throw new Exception("Redis Authentication failed.");
+                }
+
+                var auth_status = auth[0].AsString();
+                if (!auth_status.Equals("OK", StringComparison.Ordinal))
+                {
+                    connection.Dispose();
+                    throw new Exception("Redis Authentication failed.");
+                }
+            }
+            
+            if (space == 0)
+                return connection;
+
+            var selected_space = RedisCommand.Create(RedisCommands.SELECT)
+                .AddArgument(space)
+                .Execute(connection);
+
+            if (selected_space.IsEmpty)
+            {
+                connection.Dispose();
+                throw new Exception($"Redis Keyspace {space} does not exist or is not available.");
+            }
+
+            var selected_status = selected_space[0].AsString();
+            if (!selected_status.Equals("OK", StringComparison.Ordinal))
+            {
+                connection.Dispose();
+                throw new Exception($"Redis Keyspace {space} does not exist or is not available.");
+            }
             
             return connection;
         }

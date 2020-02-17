@@ -45,7 +45,7 @@ namespace Simple.Redis
             where T : class =>
             AddArgument(Serializer.SerializeToBytes(argument));
 
-        public void Execute(IRedisConnection connection)
+        public RedisResponse Execute(IRedisConnection connection)
         {
             if (connection.IsPassThrough)
                 throw new InvalidOperationException($"Connection is marked as Pass-Through and will not execute command \"{command}\".");
@@ -60,7 +60,8 @@ namespace Simple.Redis
                 channel.Write(bytes, 0, bytes.Length);
                 channel.Flush();
 
-
+                var parser = new RedisResponseParser(channel);
+                return parser.Parse();
             }
             catch (Exception ex)
             {
