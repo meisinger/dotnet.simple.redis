@@ -1,0 +1,25 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
+WORKDIR /app
+
+COPY ./Simple.Redis/Simple.Redis.csproj ./Simple.Redis/Simple.Redis.csproj
+COPY ./Simple.Redis.Tests/Simple.Redis.Tests.csproj ./Simple.Redis.Tests/Simple.Redis.Tests.csproj
+RUN dotnet restore Simple.Redis.Tests/Simple.Redis.Tests.csproj
+
+COPY ./Simple.Redis/ ./Simple.Redis
+COPY ./Simple.Redis.Tests ./Simple.Redis.Tests
+RUN dotnet build ./Simple.Redis.Tests/Simple.Redis.Tests.csproj
+
+#FROM build as testrunner
+#WORKDIR /app/Simple.Redis.Tests
+#ENTRYPOINT ["dotnet", "test", "--logger:trx"]
+#
+#FROM build as test
+#WORKDIR /app/Simple.Redis.Tests
+#RUN dotnet test
+#
+#FROM build as release
+#WORKDIR /app/Simple.Redis
+#RUN dotnet publish -c Release -o out
+
+WORKDIR /app/Simple.Redis.Tests
+ENTRYPOINT ["dotnet", "test", "--logger:trx"]

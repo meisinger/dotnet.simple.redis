@@ -51,7 +51,7 @@ namespace Simple.Redis
         {
             if (!enabled)
                 return;
-            
+
             RedisConnectionManager.DisposeConnectionPool();
         }
 
@@ -67,7 +67,7 @@ namespace Simple.Redis
         {
             if (!enabled)
                 return RedisConnection.CreatePassThrough();
-            
+
             var connection = GetConnection();
             if (connection.InError)
             {
@@ -94,7 +94,7 @@ namespace Simple.Redis
                     throw new Exception("Redis Authentication failed.");
                 }
             }
-            
+
             if (space == 0)
                 return connection;
 
@@ -114,20 +114,20 @@ namespace Simple.Redis
                 connection.Dispose();
                 throw new Exception($"Redis Keyspace {space} does not exist or is not available.");
             }
-            
+
             return connection;
         }
 
         public static IRedisConnection CreateConnection(string host, int port)
         {
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+            {
+                NoDelay = true,
+                SendTimeout = -1
+            };
+
             try
             {
-                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    NoDelay = true,
-                    SendTimeout = -1
-                };
-
                 socket.Connect(host, port);
                 if (!socket.Connected)
                 {

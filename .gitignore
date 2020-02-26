@@ -1,6 +1,9 @@
+**/.vscode
+
 [Bb]in/
 [Oo]bj/
 packages/
 
 dev.*.config
 *.local.config
+*.local.json
